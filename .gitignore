@@ -1,0 +1,43 @@
+# ---- Build artifacts (Go) ----
+/bin/
+/server
+/stratum-api
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# ---- Go workspace & toolchain ----
+go.work
+go.work.sum
+
+# ---- Vendored dependencies (unused — stdlib-first project) ----
+/vendor/
+
+# ---- Environment & secrets ----
+.env
+.env.*
+!.env.example
+
+# ---- Test & coverage output ----
+coverage.out
+coverage.html
+*.coverprofile
+
+# ---- Logs & scratch ----
+*.log
+/tmp/
+
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+
+# ---- Editors ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

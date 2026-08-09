@@ -1,0 +1,21 @@
+# Local development Postgres. Matches the DATABASE_URL default in .env.example:
+#   postgres://postgres:postgres@localhost:5432/stratum?sslmode=disable
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: stratum
+    ports:
+      - "5432:5432"
+    volumes:
+      - stratum_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d stratum"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  stratum_pgdata:

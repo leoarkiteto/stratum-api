@@ -65,7 +65,7 @@ required variables fail fast. See `.env.example` for the full list.
 | `JWT_SECRET`    | yes      | — (min 32 chars)    |
 | `HTTP_ADDR`     | no       | `:8080`             |
 | `JWT_TTL`       | no       | `24h`               |
-| `JWT_ISSUER`    | no       | `stratum-backend`   |
+| `JWT_ISSUER`    | no       | `stratum-api`        |
 | `MIGRATIONS_DIR`| no       | `migrations`        |
 
 ## Makefile targets

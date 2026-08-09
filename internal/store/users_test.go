@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/leoarkiteto/stratum-backend/internal/db"
-	"github.com/leoarkiteto/stratum-backend/internal/model"
-	"github.com/leoarkiteto/stratum-backend/internal/store"
+	"github.com/leoarkiteto/stratum-api/internal/db"
+	"github.com/leoarkiteto/stratum-api/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/store"
 )
 
 // TestUsersIntegration exercises the real Postgres store.

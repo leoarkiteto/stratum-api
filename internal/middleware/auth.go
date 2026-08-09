@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/leoarkiteto/stratum-backend/internal/apierr"
-	"github.com/leoarkiteto/stratum-backend/internal/auth"
-	"github.com/leoarkiteto/stratum-backend/internal/httpx"
-	"github.com/leoarkiteto/stratum-backend/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/apierr"
+	"github.com/leoarkiteto/stratum-api/internal/auth"
+	"github.com/leoarkiteto/stratum-api/internal/httpx"
+	"github.com/leoarkiteto/stratum-api/internal/model"
 )
 
 // Authenticate validates the Authorization: Bearer <token> header and

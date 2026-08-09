@@ -46,8 +46,8 @@ func TestLoadDefaults(t *testing.T) {
 	if cfg.JWTTTL != 24*time.Hour {
 		t.Errorf("JWTTTL = %v, want 24h", cfg.JWTTTL)
 	}
-	if cfg.JWTIssuer != "stratum-backend" {
-		t.Errorf("JWTIssuer = %q, want stratum-backend", cfg.JWTIssuer)
+	if cfg.JWTIssuer != "stratum-api" {
+		t.Errorf("JWTIssuer = %q, want stratum-api", cfg.JWTIssuer)
 	}
 	if cfg.MigrationsDir != "migrations" {
 		t.Errorf("MigrationsDir = %q, want migrations", cfg.MigrationsDir)

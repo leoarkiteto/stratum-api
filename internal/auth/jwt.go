@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/leoarkiteto/stratum-backend/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/model"
 )
 
 // JWTManager issues and parses HS256-signed access tokens.

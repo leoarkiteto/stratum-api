@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 
-	"github.com/leoarkiteto/stratum-backend/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/model"
 )
 
 // Principal is the authenticated identity attached to the request context

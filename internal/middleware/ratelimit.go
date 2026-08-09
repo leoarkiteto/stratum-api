@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/leoarkiteto/stratum-backend/internal/apierr"
-	"github.com/leoarkiteto/stratum-backend/internal/httpx"
+	"github.com/leoarkiteto/stratum-api/internal/apierr"
+	"github.com/leoarkiteto/stratum-api/internal/httpx"
 )
 
 // RateLimiter is a simple in-memory fixed-window rate limiter keyed by an

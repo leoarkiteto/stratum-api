@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/leoarkiteto/stratum-backend/internal/apierr"
-	"github.com/leoarkiteto/stratum-backend/internal/auth"
-	"github.com/leoarkiteto/stratum-backend/internal/httpx"
-	"github.com/leoarkiteto/stratum-backend/internal/model"
-	"github.com/leoarkiteto/stratum-backend/internal/service"
+	"github.com/leoarkiteto/stratum-api/internal/apierr"
+	"github.com/leoarkiteto/stratum-api/internal/auth"
+	"github.com/leoarkiteto/stratum-api/internal/httpx"
+	"github.com/leoarkiteto/stratum-api/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/service"
 )
 
 // Deps are the handler's dependencies.

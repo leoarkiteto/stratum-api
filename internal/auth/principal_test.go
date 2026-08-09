@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/leoarkiteto/stratum-backend/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/model"
 )
 
 func TestRoleValidity(t *testing.T) {

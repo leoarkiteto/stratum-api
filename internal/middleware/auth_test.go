@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leoarkiteto/stratum-backend/internal/auth"
-	"github.com/leoarkiteto/stratum-backend/internal/middleware"
-	"github.com/leoarkiteto/stratum-backend/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/auth"
+	"github.com/leoarkiteto/stratum-api/internal/middleware"
+	"github.com/leoarkiteto/stratum-api/internal/model"
 )
 
 func TestAuthenticateSetsPrincipal(t *testing.T) {

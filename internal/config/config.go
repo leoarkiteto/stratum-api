@@ -27,7 +27,7 @@ func Load() (Config, error) {
 		DatabaseURL:   os.Getenv("DATABASE_URL"),
 		JWTSecret:     os.Getenv("JWT_SECRET"),
 		JWTTTL:        getDuration("JWT_TTL", 24*time.Hour),
-		JWTIssuer:     getenv("JWT_ISSUER", "stratum-backend"),
+		JWTIssuer:     getenv("JWT_ISSUER", "stratum-api"),
 		MigrationsDir: getenv("MIGRATIONS_DIR", "migrations"),
 	}
 

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leoarkiteto/stratum-backend/internal/apierr"
-	"github.com/leoarkiteto/stratum-backend/internal/model"
-	"github.com/leoarkiteto/stratum-backend/internal/store"
+	"github.com/leoarkiteto/stratum-api/internal/apierr"
+	"github.com/leoarkiteto/stratum-api/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/store"
 )
 
 // fakeUserStore is an in-memory UserStore for tests (no DB needed).

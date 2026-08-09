@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leoarkiteto/stratum-backend/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/model"
 )
 
 func newTestManager(ttl time.Duration) *JWTManager {

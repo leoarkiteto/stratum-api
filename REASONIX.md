@@ -4,7 +4,7 @@ The backend is a **REST API**: JSON over HTTP, resource-oriented (`/api/v1/ticke
 
 **Stack:** Go 1.26+, `net/http` + `ServeMux` (stdlib), Postgres 16 via `database/sql` (stdlib) + `pgx` driver, OpenAPI 3.0 spec generated from the code (swaggo/swag) into `docs/`.
 
-> Part of a monorepo; will be split into its own repo (`stratum-backend`) before launch.
+> Split out of the monorepo into its own repo (`stratum-api`).
 
 ---
 

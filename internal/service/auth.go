@@ -8,10 +8,10 @@ import (
 	"net/mail"
 	"strings"
 
-	"github.com/leoarkiteto/stratum-backend/internal/apierr"
-	"github.com/leoarkiteto/stratum-backend/internal/auth"
-	"github.com/leoarkiteto/stratum-backend/internal/model"
-	"github.com/leoarkiteto/stratum-backend/internal/store"
+	"github.com/leoarkiteto/stratum-api/internal/apierr"
+	"github.com/leoarkiteto/stratum-api/internal/auth"
+	"github.com/leoarkiteto/stratum-api/internal/model"
+	"github.com/leoarkiteto/stratum-api/internal/store"
 )
 
 // UserStore is the persistence interface the auth service needs.

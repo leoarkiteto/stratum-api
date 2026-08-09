@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/leoarkiteto/stratum-backend/internal/auth"
-	"github.com/leoarkiteto/stratum-backend/internal/config"
-	"github.com/leoarkiteto/stratum-backend/internal/db"
-	"github.com/leoarkiteto/stratum-backend/internal/server"
-	"github.com/leoarkiteto/stratum-backend/internal/store"
+	"github.com/leoarkiteto/stratum-api/internal/auth"
+	"github.com/leoarkiteto/stratum-api/internal/config"
+	"github.com/leoarkiteto/stratum-api/internal/db"
+	"github.com/leoarkiteto/stratum-api/internal/server"
+	"github.com/leoarkiteto/stratum-api/internal/store"
 )
 
 func main() {

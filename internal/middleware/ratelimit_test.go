@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leoarkiteto/stratum-backend/internal/middleware"
+	"github.com/leoarkiteto/stratum-api/internal/middleware"
 )
 
 func TestRateLimiterAllowsWithinLimit(t *testing.T) {

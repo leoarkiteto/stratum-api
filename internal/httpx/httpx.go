@@ -9,7 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/leoarkiteto/stratum-backend/internal/apierr"
+	"github.com/leoarkiteto/stratum-api/internal/apierr"
 )
 
 // ErrorEnvelope is the JSON body of every error response.

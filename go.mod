@@ -1,4 +1,4 @@
-module github.com/leoarkiteto/stratum-backend
+module github.com/leoarkiteto/stratum-api
 
 go 1.26.5
 

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/leoarkiteto/stratum-backend/internal/auth"
-	"github.com/leoarkiteto/stratum-backend/internal/handler"
-	"github.com/leoarkiteto/stratum-backend/internal/middleware"
-	"github.com/leoarkiteto/stratum-backend/internal/service"
+	"github.com/leoarkiteto/stratum-api/internal/auth"
+	"github.com/leoarkiteto/stratum-api/internal/handler"
+	"github.com/leoarkiteto/stratum-api/internal/middleware"
+	"github.com/leoarkiteto/stratum-api/internal/service"
 )
 
 // Credential endpoint throttling (per client IP, single instance).

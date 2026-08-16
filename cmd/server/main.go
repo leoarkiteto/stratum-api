@@ -1,5 +1,5 @@
-// Command server is the Stratum backend entrypoint: load config, open DB,
-// apply migrations, wire store → service → handler → server.
+// Command server is the Stratum application entrypoint: load config, open DB,
+// apply migrations, assemble the GOTTH app and serve.
 package main
 
 import (
@@ -11,11 +11,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/leoarkiteto/stratum-api/internal/auth"
-	"github.com/leoarkiteto/stratum-api/internal/config"
-	"github.com/leoarkiteto/stratum-api/internal/db"
-	"github.com/leoarkiteto/stratum-api/internal/server"
-	"github.com/leoarkiteto/stratum-api/internal/store"
+	"github.com/leoarkiteto/stratum/internal/app"
+	"github.com/leoarkiteto/stratum/internal/config"
+	"github.com/leoarkiteto/stratum/internal/db"
 )
 
 func main() {
@@ -46,12 +44,9 @@ func run() error {
 		return err
 	}
 
-	st := store.New(pool)
-	jwtm := auth.NewJWTManager(cfg.JWTSecret, cfg.JWTTTL, cfg.JWTIssuer)
-
 	httpSrv := &http.Server{
 		Addr:              cfg.HTTPAddr,
-		Handler:           server.New(server.Deps{Store: st, JWT: jwtm}),
+		Handler:           app.New(cfg, pool),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

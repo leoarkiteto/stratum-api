@@ -1,7 +1,7 @@
 # ---- Build artifacts (Go) ----
 /bin/
 /server
-/stratum-api
+/stratum
 *.exe
 *.exe~
 *.dll

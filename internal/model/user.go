@@ -1,4 +1,4 @@
-// Package model holds the domain types shared across layers.
+// Package model holds the domain types shared across modules.
 package model
 
 import "time"
@@ -28,11 +28,11 @@ func (r Role) IsValid() bool {
 
 // User is an authenticated platform user.
 type User struct {
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	Email        string    `json:"email"`
-	Name         string    `json:"name"`
-	Role         Role      `json:"role"`
-	PasswordHash string    `json:"-"`
-	ID           int64     `json:"id"`
+	ID           int64
+	Email        string
+	Name         string
+	Role         Role
+	PasswordHash string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

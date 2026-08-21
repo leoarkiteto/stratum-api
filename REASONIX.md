@@ -44,6 +44,70 @@ and no API spec to generate. Tests live next to the code (`*_test.go`).
 
 ---
 
+## Architecture
+
+**Hexagonal (ports & adapters).** The business core sits in the middle,
+isolated from both the HTTP edge and persistence. Dependencies point inward:
+each layer only knows the layer inside it. In Go, ports are plain interfaces
+(or small function types like `election.Clock`) declared at the consumer —
+`auth.UserStore`, `election.ElectionStore`, `session.Store`, `web.UserStore` —
+so there is no separate `ports` package; adapters implement them and the
+composition root wires everything with constructor injection.
+
+```
+                  internal/app (composition root) + cmd/server
+        app.New builds concrete adapters and injects them into
+        services via Deps; owns background jobs (election settler).
+        cmd/server only loads config → DB → migrate → serve.
+                                │
+   ┌────────────────────────────┴───────────────────────────────┐
+   │ DRIVING (inbound) adapters        │ DRIVEN (outbound)       │
+   │ handler.go per feature +          │ adapters                │
+   │ internal/web (render, cookies,    │ auth.Store,             │
+   │ CSRF, auth middleware)            │ election.Store,         │
+   │ thin: parse → one service         │ session.Manager         │
+   │ call → render/redirect            │ (Postgres via           │
+   └───────────────┬─────────────────── │ database/sql + pgx)    │
+                   │ depends on ports   └───────────┬────────────┘
+                   │                                │ implements ports
+   ┌───────────────┴────────────────────────────────┴────────────┐
+   │ APPLICATION SERVICES — business rules, no HTTP, no SQL:     │
+   │ auth.Service, election.Service (each feature's service.go)  │
+   └───────────────────────────┬─────────────────────────────────┘
+                               │ uses shared types
+   ┌───────────────────────────┴─────────────────────────────────┐
+   │ DOMAIN — internal/model (User, Role, Election, ...)         │
+   │ + pure helpers (internal/password: Argon2id + pepper)       │
+   │ no I/O, no external dependencies                            │
+   └─────────────────────────────────────────────────────────────┘
+```
+
+- **Domain** (`internal/model`, `internal/password`): shared types and pure
+  logic; no I/O, no external dependencies.
+- **Application** (each feature's `service.go`): business rules orchestrate
+  ports. Services never import `net/http` or `database/sql`.
+- **Ports**: interfaces declared where they are consumed and implemented by
+  adapters — tests implement them with hand-written fakes
+  (`service_test.go`, `store_test.go`).
+- **Adapters**:
+  - *Driving (inbound)*: the HTTP edge — `handler.go` per feature plus
+    `internal/web` (render, cookies, CSRF, auth middleware).
+  - *Driven (outbound)*: Postgres persistence — `auth.Store`,
+    `election.Store`, `session.Manager`, all `database/sql` + plain SQL.
+- **Composition root** (`internal/app/app.go`): the only place that constructs
+  concrete adapters and injects them via `Deps` structs. `app.New` returns an
+  `*App` exposing `Handler()` and `Run(ctx)` for background jobs; there are no
+  singletons or manual `new` elsewhere.
+- **Domain errors travel outward**: stores return `auth.ErrNotFound`,
+  `auth.ErrEmailTaken`, ...; services propagate them; handlers map them to
+  user-facing messages.
+
+Hexagonal layering lives *within* the vertical feature slices — handler,
+service, store and templates stay in one `internal/<feature>/` dir; the
+hexagonal boundaries are the package-level interfaces, not directory tiers.
+
+---
+
 ## Rules
 
 ### Standard library first
@@ -51,12 +115,15 @@ and no API spec to generate. Tests live next to the code (`*_test.go`).
 - No web frameworks (no Gin/Echo/chi) and no ORMs (no GORM). `ServeMux` handles
   method-aware routes (`GET /login`, `GET /dashboard`).
 - Allowed libraries where stdlib has no answer: `pgx` (driver), `a-h/templ`
-  (templates), `golang.org/x/crypto/bcrypt` (passwords). Nothing heavier — no
+  (templates), `golang.org/x/crypto/argon2` (passwords). Nothing heavier — no
   query builders, no validation frameworks.
 
 ### Modular monolith (feature slices)
 - Organize by feature under `internal/` (e.g. `auth`, `home`). A feature owns
   its HTTP handlers, service, store and `.templ` templates.
+- Each slice follows hexagonal layering: the service is the application core
+  and depends on a port (interface); the store is the driven adapter and the
+  handler the driving adapter (see Architecture).
 - Shared, cross-feature concerns live in `internal/web` (rendering, cookies,
   CSRF, auth middleware) and `internal/app` (wiring, request logging, recovery).
 - Keep handlers thin: parse/validate the request → one service call → render a
@@ -80,7 +147,9 @@ and no API spec to generate. Tests live next to the code (`*_test.go`).
 - Every state-changing form embeds a CSRF token bound to the session and
   validates it (`web.ValidCSRF`).
 - RBAC roles `syndic` / `owner` / `tenant`. Middleware puts the current user in
-  the request context (`web.RequireAuth` protects; `web.LoadUser` is optional).
+  the request context (`web.RequireAuth` protects; `web.LoadUser` is optional;
+  `web.RequireRole` gates role-specific routes). Services remain the source of
+  truth for authorization — middleware only shapes the HTTP edge.
 
 ### Config
 - Environment variables only (12-factor), parsed once in `internal/config`; fail

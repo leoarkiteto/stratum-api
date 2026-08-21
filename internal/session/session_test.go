@@ -53,6 +53,13 @@ func TestSessionIntegration(t *testing.T) {
 		t.Fatalf("truncate: %v", err)
 	}
 
+	var userID int64
+	if err := pool.QueryRowContext(ctx,
+		`INSERT INTO users (email, name, role, password_hash) VALUES ('sess@example.com', 'Sess', 'owner', 'h') RETURNING id`,
+	).Scan(&userID); err != nil {
+		t.Fatalf("seed user: %v", err)
+	}
+
 	m := New(pool, time.Hour)
 
 	token, csrf, err := m.Create(ctx)
@@ -71,7 +78,7 @@ func TestSessionIntegration(t *testing.T) {
 		t.Errorf("Get = %+v, want userID 0 and csrf %q", s, csrf)
 	}
 
-	newToken, err := m.BindUser(ctx, token, 42)
+	newToken, err := m.BindUser(ctx, token, userID)
 	if err != nil {
 		t.Fatalf("BindUser: %v", err)
 	}
@@ -85,8 +92,8 @@ func TestSessionIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Get after BindUser: %v", err)
 	}
-	if s.UserID != 42 {
-		t.Errorf("UserID = %d, want 42", s.UserID)
+	if s.UserID != userID {
+		t.Errorf("UserID = %d, want %d", s.UserID, userID)
 	}
 
 	if err := m.Delete(ctx, newToken); err != nil {

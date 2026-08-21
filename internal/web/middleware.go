@@ -64,6 +64,27 @@ func LoadUser(sessions session.Store, users UserStore) func(http.Handler) http.H
 	}
 }
 
+// RequireRole protects a handler for a single role. It must wrap inside
+// RequireAuth (or LoadUser) so the current user is present in the context.
+// Requests with a different role are redirected to redirectTo. Authorization
+// is still enforced by the services — this middleware only gates the HTTP edge.
+func RequireRole(role model.Role, redirectTo string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			u, ok := UserFrom(r.Context())
+			if !ok || u.Role != role {
+				if IsHTMX(r) {
+					HXRedirect(w, redirectTo)
+					return
+				}
+				http.Redirect(w, r, redirectTo, http.StatusSeeOther)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func redirectLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }

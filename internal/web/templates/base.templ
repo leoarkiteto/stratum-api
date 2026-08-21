@@ -29,6 +29,7 @@ templ Navbar(user *model.User) {
 			<a href="/" class="text-lg font-semibold tracking-tight">Stratum</a>
 			<div class="flex items-center gap-4 text-sm">
 				if user != nil {
+					<a href="/elections" class="font-medium hover:text-slate-700">Elections</a>
 					<span class="text-slate-600">{ user.Name }</span>
 					<form action="/logout" method="post" class="m-0">
 						<button type="submit" class="rounded-md border border-slate-300 px-3 py-1.5 font-medium hover:bg-slate-50">Log out</button>

@@ -44,9 +44,17 @@ func run() error {
 		return err
 	}
 
+	// Assemble the application: HTTP handler + background jobs (composition
+	// root). The background loop promotes election winners once their handover
+	// period expires; it is stopped (via the deferred cancel) on shutdown.
+	application := app.New(cfg, pool)
+	settlerCtx, stopBackground := context.WithCancel(ctx)
+	defer stopBackground()
+	go application.Run(settlerCtx)
+
 	httpSrv := &http.Server{
 		Addr:              cfg.HTTPAddr,
-		Handler:           app.New(cfg, pool),
+		Handler:           application.Handler(),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

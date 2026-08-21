@@ -1,0 +1,48 @@
+package electiontemplates
+
+import (
+	"github.com/leoarkiteto/stratum/internal/model"
+	"github.com/leoarkiteto/stratum/internal/web/templates"
+)
+
+templ ElectionsPage(user *model.User, elections []*model.Election) {
+	@templates.Base("Elections", user) {
+		<div>
+			<div class="flex items-center justify-between">
+				<h1 class="text-2xl font-semibold tracking-tight">Syndic elections</h1>
+				if user.Role == model.RoleSyndic {
+					<a href="/elections/new" class="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white hover:bg-slate-700">New election</a>
+				}
+			</div>
+			if len(elections) == 0 {
+				<p class="mt-4 text-sm text-slate-600">No elections yet.</p>
+			} else {
+				<ul class="mt-4 space-y-3">
+					for _, e := range elections {
+						<li class="rounded-md border border-slate-200 bg-white px-4 py-3">
+							<div class="flex items-center justify-between gap-4">
+								<a href="/elections/{ e.ID }" class="font-medium hover:underline">{ e.Title }</a>
+								@StatusBadge(e.Status)
+							</div>
+							<p class="mt-1 text-sm text-slate-500">
+								{ e.CandidateCount } candidate(s) · created by { e.CreatorName } on { e.CreatedAt.Format("Jan 2, 2006") }
+							</p>
+						</li>
+					}
+				</ul>
+			}
+		</div>
+	}
+}
+
+templ StatusBadge(status model.ElectionStatus) {
+	if status == model.ElectionStatusNomination {
+		<span class="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">Nominations open</span>
+	} else if status == model.ElectionStatusVoting {
+		<span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">Voting open</span>
+	} else if status == model.ElectionStatusTransition {
+		<span class="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-800">Handover</span>
+	} else {
+		<span class="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-700">Closed</span>
+	}
+}

@@ -1,24 +1,33 @@
 <!--
 # Sync Impact Report
-- Version change: (unfilled template) → 1.0.0
-- Modified principles: none (first adoption; no previously ratified principles)
-- Added sections: Core Principles (I–V), Technology & Infrastructure
-  Constraints, Development Workflow & Quality Gates, Governance
+- Version change: 1.0.0 → 1.1.0 (MINOR: new principle VI, new domain
+  section, materially expanded guidance in principles I and V)
+- Modified principles:
+  - I. GOTTH Stack — Server-Rendered Modular Monolith →
+    I. GOTTH Stack — Server-Rendered Modular Monolith (Vertical Slices)
+  - V. Hexagonal Architecture (Ports & Adapters) →
+    V. Hexagonal Architecture & Vertical Slices (Ports & Adapters)
+- Added sections: Principle VI (RBAC — Three Access Profiles);
+  Product Domain & Access Model
 - Removed sections: none
 - Follow-up TODOs: none
 -->
 
 # Stratum Constitution
 
+Stratum is a condominium (building) management platform: a server-rendered
+modular monolith serving the residents and administrators of a building.
+
 ## Core Principles
 
-### I. GOTTH Stack — Server-Rendered Modular Monolith
+### I. GOTTH Stack — Server-Rendered Modular Monolith (Vertical Slices)
 
 The application MUST be a server-rendered modular monolith on the GOTTH stack:
 Go (`net/http` + `ServeMux`), TailwindCSS, Templ and HTMX. Pages are rendered as
 HTML on the server; there MUST be no JSON REST API and no separate frontend/SPA.
-Features are vertical slices under `internal/`: each feature owns its handlers,
-service, store and templates. Shared, cross-feature concerns live in
+Features are self-contained vertical slices under `internal/`: each feature
+owns its handlers, service, store and templates, and MUST NOT reach into
+another feature's internals. Shared, cross-feature concerns live in
 `internal/web` (rendering, cookies, CSRF, auth middleware) and `internal/app`
 (wiring, request logging, recovery). One deployable, one rendering pipeline —
 the simplest path from database to pixels.
@@ -54,21 +63,45 @@ Every state-changing form MUST embed and validate a CSRF token bound to the
 session (`web.ValidCSRF`). Rationale: no session material in the browser, and
 revocation is immediate and server-enforced.
 
-### V. Hexagonal Architecture (Ports & Adapters)
+### V. Hexagonal Architecture & Vertical Slices (Ports & Adapters)
 
 Business logic MUST live in services that depend only on ports (Go interfaces)
 — never on HTTP or SQL. Adapters implement those ports: stores (plain SQL via
 `database/sql`) and HTTP handlers (transport). Handlers MUST be thin:
 parse/validate the request → one service call → render a Templ component or
 redirect; handlers contain no business rules. Stores return domain errors
-(e.g. `auth.ErrNotFound`) that handlers map to user-facing messages. This
-applies per feature module, composing cleanly with the modular monolith.
-Rationale: the domain is testable without HTTP or a database, and adapters can
-be swapped without touching business logic.
+(e.g. `auth.ErrNotFound`) that handlers map to user-facing messages. Each
+vertical slice is self-contained: its ports and adapters live with the feature,
+and no other feature depends on its internals. Rationale: the domain is
+testable without HTTP or a database, and adapters can be swapped without
+touching business logic.
+
+### VI. RBAC — Three Access Profiles (NON-NEGOTIABLE)
+
+Access control MUST be role-based with exactly three profiles: `syndic` (the
+condominium administrator), `owner` (a unit owner) and `tenant` (a renter).
+Every authenticated request MUST be authorized server-side against the role
+bound to the session; role checks MUST NOT be enforced only in the UI.
+Self-service registration MAY create `owner`/`tenant` accounts; `syndic` MUST
+be granted out of band. Every feature slice MUST model its access rules around
+these roles. Rationale: owners, tenants and administrators have distinct
+permissions in a building management platform, and server-side RBAC is the
+only enforceable boundary.
+
+## Product Domain & Access Model
+
+Stratum is a condominium (building) management platform for the residents and
+administrators of a building. The platform MUST support the three RBAC
+profiles defined in Principle VI, and feature modules MUST express their
+permissions in those terms: what a tenant may view or change differs from what
+an owner may manage, and administrative powers (unit, fee and common-area
+management, member administration) belong to the `syndic`.
 
 ## Technology & Infrastructure Constraints
 
 - **Runtime**: Go 1.26+; PostgreSQL 16 via `database/sql` + the `pgx` driver.
+  The database runs in a container via `docker-compose.yaml` for local dev and
+  must stay containerized for reproducibility.
 - **Migrations**: versioned SQL pairs in `migrations/` (`NNNN_name.{up,down}.sql`),
   applied ascending at startup and tracked in `schema_migrations`; rollback is
   manual via the `.down.sql` files. Table names are snake_case plural; foreign
@@ -89,6 +122,9 @@ be swapped without touching business logic.
 - **Tests**: tests live next to the code (`*_test.go`). Store/session
   integration tests run only when `TEST_DATABASE_URL` is set and skip otherwise;
   unit and handler tests MUST NOT require a database.
+- **RBAC coverage**: any feature that exposes role-dependent behavior MUST be
+  tested with handler tests asserting authorization for each applicable role
+  (`syndic` / `owner` / `tenant`); a role regression blocks merge.
 - **Commits**: Conventional Commits (`feat:`, `fix:`, `chore:`, ...). Logging is
   structured via `log/slog`.
 - **Handler hygiene**: one service call per handler; no business rules, no SQL,
@@ -109,7 +145,7 @@ day-to-day development is `REASONIX.md`.
   expanded guidance; PATCH for clarifications, wording and non-semantic
   refinements.
 - **Compliance review**: every PR MUST be checked against these principles;
-  reviewers flag violations and block merge on any breach of Principles I–V.
+  reviewers flag violations and block merge on any breach of Principles I–VI.
   A principle may be waived only by an amendment that says so explicitly.
 
-**Version**: 1.0.0 | **Ratified**: 2026-08-22 | **Last Amended**: 2026-08-22
+**Version**: 1.1.0 | **Ratified**: 2026-08-22 | **Last Amended**: 2026-08-22

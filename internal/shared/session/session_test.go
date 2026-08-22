@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leoarkiteto/stratum/internal/db"
+	"github.com/leoarkiteto/stratum/internal/shared/database"
 )
 
 func TestNewToken(t *testing.T) {
@@ -40,13 +40,13 @@ func TestSessionIntegration(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	pool, err := db.Open(dsn)
+	pool, err := database.Open(dsn)
 	if err != nil {
-		t.Fatalf("db.Open: %v", err)
+		t.Fatalf("database.Open: %v", err)
 	}
 	t.Cleanup(func() { pool.Close() })
 
-	if err := db.Migrate(ctx, pool, "../../migrations"); err != nil {
+	if err := database.Migrate(ctx, pool, "../../migrations"); err != nil {
 		t.Fatalf("Migrate: %v", err)
 	}
 	if _, err := pool.ExecContext(ctx, "TRUNCATE users, sessions RESTART IDENTITY CASCADE"); err != nil {

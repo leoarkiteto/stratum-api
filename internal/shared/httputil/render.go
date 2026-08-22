@@ -1,4 +1,4 @@
-package web
+package httputil
 
 import (
 	"log/slog"

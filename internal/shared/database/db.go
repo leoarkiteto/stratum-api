@@ -1,5 +1,5 @@
-// Package db provides the Postgres connection and schema migrations.
-package db
+// Package database provides the Postgres connection and schema migrations.
+package database
 
 import (
 	"context"

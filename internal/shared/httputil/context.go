@@ -1,12 +1,12 @@
-// Package web provides shared HTTP helpers for the server-rendered app:
+// Package httputil provides shared HTTP helpers for the server-rendered app:
 // templ rendering, session cookies, CSRF, and auth middleware.
-package web
+package httputil
 
 import (
 	"context"
 
-	"github.com/leoarkiteto/stratum/internal/model"
-	"github.com/leoarkiteto/stratum/internal/session"
+	"github.com/leoarkiteto/stratum/internal/shared/model"
+	"github.com/leoarkiteto/stratum/internal/shared/session"
 )
 
 type ctxKey struct{ name string }

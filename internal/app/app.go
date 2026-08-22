@@ -6,16 +6,16 @@ import (
 	"net/http"
 
 	"github.com/leoarkiteto/stratum/internal/auth"
-	"github.com/leoarkiteto/stratum/internal/config"
 	"github.com/leoarkiteto/stratum/internal/home"
-	"github.com/leoarkiteto/stratum/internal/password"
-	"github.com/leoarkiteto/stratum/internal/session"
+	"github.com/leoarkiteto/stratum/internal/shared/config"
+	"github.com/leoarkiteto/stratum/internal/shared/password"
+	"github.com/leoarkiteto/stratum/internal/shared/session"
 )
 
 // New builds the application's root handler with all modules wired.
 func New(cfg config.Config, db *sql.DB) http.Handler {
 	sessions := session.New(db, cfg.SessionTTL)
-	store := auth.NewStore(db)
+	store := auth.NewPostgresUserRepository(db)
 	hasher := password.New(cfg.PasswordPepper, password.DefaultParams)
 
 	authModule := auth.New(auth.Deps{

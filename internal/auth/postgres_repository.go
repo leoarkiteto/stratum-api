@@ -7,23 +7,23 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/leoarkiteto/stratum/internal/model"
+	"github.com/leoarkiteto/stratum/internal/shared/model"
 )
 
 const userColumns = "id, email, name, role, password_hash, created_at, updated_at"
 
-// Store provides user persistence against Postgres.
-type Store struct {
+// PostgresUserRepository provides user persistence against Postgres.
+type PostgresUserRepository struct {
 	db *sql.DB
 }
 
-// NewStore builds a user store on the given database handle.
-func NewStore(db *sql.DB) *Store {
-	return &Store{db: db}
+// NewPostgresUserRepository builds a user repository on the given database handle.
+func NewPostgresUserRepository(db *sql.DB) *PostgresUserRepository {
+	return &PostgresUserRepository{db: db}
 }
 
 // CreateUser inserts a user and fills in the generated id and timestamps.
-func (s *Store) CreateUser(ctx context.Context, u *model.User) (int64, error) {
+func (s *PostgresUserRepository) CreateUser(ctx context.Context, u *model.User) (int64, error) {
 	err := s.db.QueryRowContext(ctx, `
 		INSERT INTO users (email, name, role, password_hash)
 		VALUES ($1, $2, $3, $4)
@@ -40,7 +40,7 @@ func (s *Store) CreateUser(ctx context.Context, u *model.User) (int64, error) {
 }
 
 // GetUserByEmail returns the user with the given email, or ErrNotFound.
-func (s *Store) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+func (s *PostgresUserRepository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	u := &model.User{}
 	err := s.db.QueryRowContext(ctx,
 		"SELECT "+userColumns+" FROM users WHERE email = $1", email,
@@ -55,7 +55,7 @@ func (s *Store) GetUserByEmail(ctx context.Context, email string) (*model.User, 
 }
 
 // GetUserByID returns the user with the given id, or ErrNotFound.
-func (s *Store) GetUserByID(ctx context.Context, id int64) (*model.User, error) {
+func (s *PostgresUserRepository) GetUserByID(ctx context.Context, id int64) (*model.User, error) {
 	u := &model.User{}
 	err := s.db.QueryRowContext(ctx,
 		"SELECT "+userColumns+" FROM users WHERE id = $1", id,

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/leoarkiteto/stratum/internal/password"
-	"github.com/leoarkiteto/stratum/internal/session"
+	"github.com/leoarkiteto/stratum/internal/shared/password"
+	"github.com/leoarkiteto/stratum/internal/shared/session"
 )
 
 // Deps are the auth module's dependencies.

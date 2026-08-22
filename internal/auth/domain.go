@@ -1,3 +1,5 @@
+// Package auth implements the authentication feature: registration, login,
+// logout and password handling, rendered server-side with Templ + HTMX.
 package auth
 
 import "errors"

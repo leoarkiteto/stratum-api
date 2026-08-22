@@ -1,10 +1,10 @@
-package web
+package httputil
 
 import (
 	"crypto/subtle"
 	"net/http"
 
-	"github.com/leoarkiteto/stratum/internal/session"
+	"github.com/leoarkiteto/stratum/internal/shared/session"
 )
 
 // ValidCSRF reports whether the submitted csrf field matches the session's

@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	authtpl "github.com/leoarkiteto/stratum/internal/auth/templates"
-	"github.com/leoarkiteto/stratum/internal/model"
-	"github.com/leoarkiteto/stratum/internal/session"
-	"github.com/leoarkiteto/stratum/internal/web"
+	"github.com/leoarkiteto/stratum/internal/shared/httputil"
+	"github.com/leoarkiteto/stratum/internal/shared/model"
+	"github.com/leoarkiteto/stratum/internal/shared/session"
 )
 
 // LoginPage renders GET /login.
@@ -18,13 +18,13 @@ func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
 		h.internalError(w, err)
 		return
 	}
-	web.Render(w, r, authtpl.LoginPage(csrf, "", ""))
+	httputil.Render(w, r, authtpl.LoginPage(csrf, "", ""))
 }
 
 // Login processes POST /login.
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	token, sess, ok := h.sessionForPost(r)
-	if !ok || !web.ValidCSRF(r, sess) {
+	if !ok || !httputil.ValidCSRF(r, sess) {
 		csrf, _, _ := h.ensureSession(w, r)
 		h.renderLoginForm(w, r, csrf, r.FormValue("email"), "Your session expired. Please try again.")
 		return
@@ -55,13 +55,13 @@ func (h *Handler) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		h.internalError(w, err)
 		return
 	}
-	web.Render(w, r, authtpl.RegisterPage(csrf, "", "", "owner", ""))
+	httputil.Render(w, r, authtpl.RegisterPage(csrf, "", "", "owner", ""))
 }
 
 // Register processes POST /register.
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	token, sess, ok := h.sessionForPost(r)
-	if !ok || !web.ValidCSRF(r, sess) {
+	if !ok || !httputil.ValidCSRF(r, sess) {
 		csrf, _, _ := h.ensureSession(w, r)
 		h.renderRegisterForm(w, r, csrf, "", "", "owner", "Your session expired. Please try again.")
 		return
@@ -102,12 +102,12 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 // Logout processes POST /logout. It is best-effort: the cookie is cleared
 // regardless, so a stale or unknown token cannot trap the user in a session.
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	if token, ok := web.ReadSessionCookie(r); ok {
+	if token, ok := httputil.ReadSessionCookie(r); ok {
 		_ = h.sessions.Delete(r.Context(), token)
 	}
-	web.ClearSessionCookie(w, h.secure)
-	if web.IsHTMX(r) {
-		web.HXRedirect(w, "/")
+	httputil.ClearSessionCookie(w, h.secure)
+	if httputil.IsHTMX(r) {
+		httputil.HXRedirect(w, "/")
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -120,9 +120,9 @@ func (h *Handler) completeLogin(w http.ResponseWriter, r *http.Request, token st
 		h.internalError(w, err)
 		return
 	}
-	web.SetSessionCookie(w, newToken, h.sessionTTL, h.secure)
-	if web.IsHTMX(r) {
-		web.HXRedirect(w, "/dashboard")
+	httputil.SetSessionCookie(w, newToken, h.sessionTTL, h.secure)
+	if httputil.IsHTMX(r) {
+		httputil.HXRedirect(w, "/dashboard")
 		return
 	}
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -131,27 +131,27 @@ func (h *Handler) completeLogin(w http.ResponseWriter, r *http.Request, token st
 // renderLoginForm re-renders the login form, as a partial for htmx requests
 // or a full page otherwise.
 func (h *Handler) renderLoginForm(w http.ResponseWriter, r *http.Request, csrf, email, errMsg string) {
-	if web.IsHTMX(r) {
-		web.Render(w, r, authtpl.LoginForm(csrf, email, errMsg))
+	if httputil.IsHTMX(r) {
+		httputil.Render(w, r, authtpl.LoginForm(csrf, email, errMsg))
 		return
 	}
-	web.Render(w, r, authtpl.LoginPage(csrf, email, errMsg))
+	httputil.Render(w, r, authtpl.LoginPage(csrf, email, errMsg))
 }
 
 // renderRegisterForm re-renders the register form, as a partial for htmx
 // requests or a full page otherwise.
 func (h *Handler) renderRegisterForm(w http.ResponseWriter, r *http.Request, csrf, name, email, role, errMsg string) {
-	if web.IsHTMX(r) {
-		web.Render(w, r, authtpl.RegisterForm(csrf, name, email, role, errMsg))
+	if httputil.IsHTMX(r) {
+		httputil.Render(w, r, authtpl.RegisterForm(csrf, name, email, role, errMsg))
 		return
 	}
-	web.Render(w, r, authtpl.RegisterPage(csrf, name, email, role, errMsg))
+	httputil.Render(w, r, authtpl.RegisterPage(csrf, name, email, role, errMsg))
 }
 
 // ensureSession returns the csrf (and token) of the current session, creating
 // and cookie-ing a fresh anonymous session when none exists.
 func (h *Handler) ensureSession(w http.ResponseWriter, r *http.Request) (csrf, token string, err error) {
-	if t, ok := web.ReadSessionCookie(r); ok {
+	if t, ok := httputil.ReadSessionCookie(r); ok {
 		if s, e := h.sessions.Get(r.Context(), t); e == nil {
 			return s.CSRF, t, nil
 		}
@@ -160,13 +160,13 @@ func (h *Handler) ensureSession(w http.ResponseWriter, r *http.Request) (csrf, t
 	if err != nil {
 		return "", "", err
 	}
-	web.SetSessionCookie(w, token, h.sessionTTL, h.secure)
+	httputil.SetSessionCookie(w, token, h.sessionTTL, h.secure)
 	return csrf, token, nil
 }
 
 // sessionForPost loads the session for a POST, reporting whether it is valid.
 func (h *Handler) sessionForPost(r *http.Request) (token string, s *session.Session, ok bool) {
-	token, present := web.ReadSessionCookie(r)
+	token, present := httputil.ReadSessionCookie(r)
 	if !present {
 		return "", nil, false
 	}

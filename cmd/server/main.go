@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/leoarkiteto/stratum/internal/app"
-	"github.com/leoarkiteto/stratum/internal/config"
-	"github.com/leoarkiteto/stratum/internal/db"
+	"github.com/leoarkiteto/stratum/internal/shared/config"
+	"github.com/leoarkiteto/stratum/internal/shared/database"
 )
 
 func main() {
@@ -34,13 +34,13 @@ func run() error {
 
 	ctx := context.Background()
 
-	pool, err := db.Open(cfg.DatabaseURL)
+	pool, err := database.Open(cfg.DatabaseURL)
 	if err != nil {
 		return err
 	}
 	defer pool.Close()
 
-	if err := db.Migrate(ctx, pool, cfg.MigrationsDir); err != nil {
+	if err := database.Migrate(ctx, pool, cfg.MigrationsDir); err != nil {
 		return err
 	}
 

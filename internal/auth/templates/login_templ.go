@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/leoarkiteto/stratum/internal/web/templates"
+	"github.com/leoarkiteto/stratum/internal/shared/templates"
 )
 
 func LoginPage(csrf string, email string, errMsg string) templ.Component {

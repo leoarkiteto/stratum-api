@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leoarkiteto/stratum/internal/session"
-	"github.com/leoarkiteto/stratum/internal/web"
+	"github.com/leoarkiteto/stratum/internal/shared/httputil"
+	"github.com/leoarkiteto/stratum/internal/shared/session"
 )
 
 // fakeSessionStore is an in-memory session.Store for handler tests.
@@ -118,7 +118,7 @@ func TestLoginSuccessRedirects(t *testing.T) {
 
 	rr := doForm(mux, "POST", "/login", url.Values{
 		"csrf": {csrf}, "email": {"ana@example.com"}, "password": {"strong-password"},
-	}, &http.Cookie{Name: web.SessionCookieName, Value: token}, false)
+	}, &http.Cookie{Name: httputil.SessionCookieName, Value: token}, false)
 
 	if rr.Code != http.StatusSeeOther {
 		t.Fatalf("status = %d, want 303; body: %s", rr.Code, rr.Body.String())
@@ -138,7 +138,7 @@ func TestLoginWrongPasswordForm(t *testing.T) {
 
 	rr := doForm(mux, "POST", "/login", url.Values{
 		"csrf": {csrf}, "email": {"ana@example.com"}, "password": {"wrong"},
-	}, &http.Cookie{Name: web.SessionCookieName, Value: token}, false)
+	}, &http.Cookie{Name: httputil.SessionCookieName, Value: token}, false)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200 re-render", rr.Code)
@@ -155,7 +155,7 @@ func TestLoginHTMXRedirects(t *testing.T) {
 
 	rr := doForm(mux, "POST", "/login", url.Values{
 		"csrf": {csrf}, "email": {"ana@example.com"}, "password": {"strong-password"},
-	}, &http.Cookie{Name: web.SessionCookieName, Value: token}, true)
+	}, &http.Cookie{Name: httputil.SessionCookieName, Value: token}, true)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200 for htmx", rr.Code)
@@ -172,7 +172,7 @@ func TestLoginRejectsWrongCSRF(t *testing.T) {
 
 	rr := doForm(mux, "POST", "/login", url.Values{
 		"csrf": {"bogus"}, "email": {"ana@example.com"}, "password": {"strong-password"},
-	}, &http.Cookie{Name: web.SessionCookieName, Value: token}, false)
+	}, &http.Cookie{Name: httputil.SessionCookieName, Value: token}, false)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rr.Code)
@@ -189,7 +189,7 @@ func TestRegisterSuccess(t *testing.T) {
 	rr := doForm(mux, "POST", "/register", url.Values{
 		"csrf": {csrf}, "name": {"Ana Souza"}, "email": {"ana@example.com"},
 		"password": {"strong-password"}, "role": {"owner"},
-	}, &http.Cookie{Name: web.SessionCookieName, Value: token}, false)
+	}, &http.Cookie{Name: httputil.SessionCookieName, Value: token}, false)
 
 	if rr.Code != http.StatusSeeOther {
 		t.Fatalf("status = %d, want 303; body: %s", rr.Code, rr.Body.String())
@@ -207,7 +207,7 @@ func TestRegisterDuplicateEmailForm(t *testing.T) {
 	rr := doForm(mux, "POST", "/register", url.Values{
 		"csrf": {csrf}, "name": {"Ana Souza"}, "email": {"ana@example.com"},
 		"password": {"strong-password"}, "role": {"owner"},
-	}, &http.Cookie{Name: web.SessionCookieName, Value: token}, false)
+	}, &http.Cookie{Name: httputil.SessionCookieName, Value: token}, false)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200 re-render", rr.Code)
@@ -224,7 +224,7 @@ func TestRegisterValidationError(t *testing.T) {
 	rr := doForm(mux, "POST", "/register", url.Values{
 		"csrf": {csrf}, "name": {"Ana"}, "email": {"ana@example.com"},
 		"password": {"short"}, "role": {"owner"},
-	}, &http.Cookie{Name: web.SessionCookieName, Value: token}, false)
+	}, &http.Cookie{Name: httputil.SessionCookieName, Value: token}, false)
 
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rr.Code)
@@ -238,14 +238,14 @@ func TestLogoutClearsCookie(t *testing.T) {
 	mux, _, _ := newTestMux()
 
 	rr := doForm(mux, "POST", "/logout", nil,
-		&http.Cookie{Name: web.SessionCookieName, Value: "whatever"}, false)
+		&http.Cookie{Name: httputil.SessionCookieName, Value: "whatever"}, false)
 
 	if rr.Code != http.StatusSeeOther {
 		t.Fatalf("status = %d, want 303", rr.Code)
 	}
 	cleared := false
 	for _, c := range rr.Result().Cookies() {
-		if c.Name == web.SessionCookieName {
+		if c.Name == httputil.SessionCookieName {
 			if c.MaxAge >= 0 {
 				t.Error("logout must clear the session cookie")
 			}

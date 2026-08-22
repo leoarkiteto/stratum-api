@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/leoarkiteto/stratum/internal/auth"
-	"github.com/leoarkiteto/stratum/internal/db"
-	"github.com/leoarkiteto/stratum/internal/model"
+	"github.com/leoarkiteto/stratum/internal/shared/database"
+	"github.com/leoarkiteto/stratum/internal/shared/model"
 )
 
 // TestStoreIntegration exercises the real Postgres user store.
@@ -21,22 +21,22 @@ func TestStoreIntegration(t *testing.T) {
 	}
 
 	ctx := context.Background()
-	pool, err := db.Open(dsn)
+	pool, err := database.Open(dsn)
 	if err != nil {
-		t.Fatalf("db.Open: %v", err)
+		t.Fatalf("database.Open: %v", err)
 	}
 	t.Cleanup(func() { pool.Close() })
 
 	// Migrations live in backend/migrations; go test runs with the package
 	// dir (internal/auth) as CWD.
-	if err := db.Migrate(ctx, pool, "../../migrations"); err != nil {
+	if err := database.Migrate(ctx, pool, "../../migrations"); err != nil {
 		t.Fatalf("Migrate: %v", err)
 	}
 	if _, err := pool.ExecContext(ctx, "TRUNCATE users RESTART IDENTITY CASCADE"); err != nil {
 		t.Fatalf("truncate users: %v", err)
 	}
 
-	s := auth.NewStore(pool)
+	s := auth.NewPostgresUserRepository(pool)
 
 	t.Run("create and fetch by email", func(t *testing.T) {
 		u := &model.User{

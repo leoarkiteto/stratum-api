@@ -8,8 +8,8 @@ import (
 	"net/mail"
 	"strings"
 
-	"github.com/leoarkiteto/stratum/internal/model"
-	"github.com/leoarkiteto/stratum/internal/password"
+	"github.com/leoarkiteto/stratum/internal/shared/model"
+	"github.com/leoarkiteto/stratum/internal/shared/password"
 )
 
 // Password policy bounds. Argon2id has no input-length limit (unlike bcrypt),
@@ -18,14 +18,6 @@ const (
 	minPasswordBytes = 8
 	maxPasswordBytes = 1024
 )
-
-// UserStore is the persistence contract the auth service needs.
-// *Store implements it; tests use a hand-written fake.
-type UserStore interface {
-	CreateUser(ctx context.Context, u *model.User) (int64, error)
-	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-	GetUserByID(ctx context.Context, id int64) (*model.User, error)
-}
 
 // Service is the auth business logic.
 type Service struct {

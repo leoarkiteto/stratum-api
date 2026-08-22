@@ -9,8 +9,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/leoarkiteto/stratum/internal/model"
-	"github.com/leoarkiteto/stratum/internal/web/templates"
+	"github.com/leoarkiteto/stratum/internal/shared/model"
+	"github.com/leoarkiteto/stratum/internal/shared/templates"
 )
 
 func LandingPage() templ.Component {

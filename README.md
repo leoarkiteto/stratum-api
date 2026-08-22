@@ -19,7 +19,7 @@ authenticated dashboard, all rendered server-side with HTMX form handling.
 
 - Roles: `syndic` / `owner` / `tenant` (self-service is `owner`/`tenant`).
 - Passwords hashed with Argon2id + an HMAC-SHA256 pepper (see
-  `internal/password`).
+  `internal/shared/password`).
 - Sessions stored in Postgres, token rotated on login (fixation-safe), CSRF
   tokens bound to the session.
 
@@ -82,21 +82,32 @@ Run `make` (or `make help`) to list them.
 
 ## Project layout
 
-A modular monolith: each feature is a vertical slice under `internal/`,
-owning its handlers, service, store and templates.
+A modular monolith: each feature is a hexagonal vertical slice under
+`internal/`, owning its domain, ports, service, HTTP handler, persistence
+adapter and templates. Shared infrastructure lives under `internal/shared/`.
 
 ```
 backend/
 ├── cmd/server/            # entrypoint: config → DB → migrate → app
 ├── internal/
-│   ├── app/               # assembly: module wiring, shared middleware, static
-│   ├── auth/              # auth feature: register/login/logout + templates
-│   ├── home/              # landing + dashboard feature + templates
-│   ├── session/           # Postgres-backed server-side sessions + CSRF
-│   ├── web/               # shared web helpers: render, cookies, auth middleware, base layout
-│   ├── config/            # env-only config, fail fast
-│   ├── db/                # pgx pool + versioned migration runner
-│   └── model/             # shared domain types (User, Role)
+│   ├── app/               # composition root: module wiring, logging, recovery
+│   ├── auth/              # auth feature slice (register/login/logout)
+│   │   ├── domain.go      #   domain types + errors
+│   │   ├── ports.go       #   interfaces the service depends on
+│   │   ├── service.go     #   business logic
+│   │   ├── http_handler.go
+│   │   ├── postgres_repository.go
+│   │   ├── module.go
+│   │   └── templates/
+│   ├── home/              # landing + dashboard feature slice
+│   └── shared/            # shared infrastructure (no feature owns it)
+│       ├── config/        # env-only config, fail fast
+│       ├── database/      # pgx pool + versioned migration runner
+│       ├── httputil/      # render, cookies, CSRF, auth middleware, context
+│       ├── model/         # shared domain types (User, Role)
+│       ├── password/      # Argon2id + pepper hashing
+│       ├── session/       # Postgres-backed sessions + CSRF
+│       └── templates/     # shared base layout
 ├── assets/input.css       # TailwindCSS source
 ├── static/                # vendored htmx.min.js + compiled app.css
 ├── migrations/            # versioned SQL pairs: NNNN_name.{up,down}.sql

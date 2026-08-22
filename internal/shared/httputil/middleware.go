@@ -1,11 +1,11 @@
-package web
+package httputil
 
 import (
 	"context"
 	"net/http"
 
-	"github.com/leoarkiteto/stratum/internal/model"
-	"github.com/leoarkiteto/stratum/internal/session"
+	"github.com/leoarkiteto/stratum/internal/shared/model"
+	"github.com/leoarkiteto/stratum/internal/shared/session"
 )
 
 // UserStore is the persistence contract auth middleware needs to load a user.

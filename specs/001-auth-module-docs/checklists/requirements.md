@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-08-22
+**Updated**: 2026-08-22 (spec extended with RBAC coverage — Story 4, FR-012…015, SC-006…008, RBAC edge cases and assumptions)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -31,20 +32,23 @@
 
 ## Notes
 
-- **Validation result**: All 16 items PASS on the first validation pass; no
-  spec updates required.
-- **No [NEEDS CLARIFICATION] markers**: The feature description specifies the
-  deliverable (documentation of the auth module covering session ID, cookie and
-  CSRF) clearly enough that the audience (developers/security reviewers),
-  scope (document-only, no behavior change), and format (Markdown, `docs/`,
-  linked from README) follow from reasonable defaults recorded in the
-  Assumptions section.
+- **Validation result**: All 16 items PASS after the RBAC extension (second
+  validation pass); no spec updates required beyond the extension itself.
+- **Extension scope**: The RBAC documentation coverage (user story 4,
+  FR-012…FR-015, SC-006…SC-008, RBAC edge cases, RBAC assumption) was added to
+  the existing auth-module documentation spec rather than creating a second
+  spec, because the deliverable is the same feature (auth module
+  documentation) and the spec already covered the role model in FR-006 and the
+  User & Role entity. No new `[NEEDS CLARIFICATION]` markers: the three
+  profiles, their assignment rules and enforcement model follow from the
+  project constitution (Principle VI) and the as-built implementation.
 - **Technical-content nuance**: This feature's deliverable *is* documentation
   of a security mechanism, so its requirements necessarily name the
   mechanism's concepts (session cookie attributes, token hashing, CSRF token
-  binding). This is the documented subject matter, not a prescription of how
-  the feature must be implemented — no frameworks, libraries, file paths or
-  code structures are dictated.
-- **Scoping**: FR-011 bounds the effort to documentation only; any
+  binding, RBAC profiles). This is the documented subject matter, not a
+  prescription of how the feature must be implemented — no frameworks,
+  libraries, file paths or code structures are dictated.
+- **Scoping**: FR-011/FR-014 bound the effort to documentation only and require
+  unenforced permissions to be flagged as gaps rather than fixed; any
   implementation gap found while documenting becomes a follow-up item, not an
   in-scope fix.

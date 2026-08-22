@@ -7,6 +7,8 @@
 **Status**: Draft
 
 **Input**: User description: "Document the auth module: Session ID + cookie + CSRF"
+and "Document in the Auth module: we are using RBAC (Role based access control)
+with 3 profile (syndic | owner | tenant)"
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -104,6 +106,38 @@ code or README.
 
 ---
 
+### User Story 4 - RBAC: The Three Profiles Are Documented (Priority: P2)
+
+A developer or security reviewer reads the documentation and can state exactly
+what role-based access control means in this project: the three profiles
+`syndic` / `owner` / `tenant`, what each profile is permitted to do as
+currently implemented, how a profile is obtained (self-service registration
+vs out-of-band grant), and where authorization is enforced (server-side, per
+request — never only in the UI).
+
+**Why this priority**: RBAC is the authorization model of the whole product
+domain, so it ranks second only to the core session/cookie/CSRF flow story; it
+must be documented for both onboarding and security review.
+
+**Independent Test**: A developer reads only the documentation and correctly
+lists the three profiles, states who may obtain each by self-service, explains
+how `syndic` is granted, and names where access decisions are enforced —
+without reading source code.
+
+**Acceptance Scenarios**:
+
+1. **Given** the documentation, **When** a reader looks for the access model,
+   **Then** they find exactly three profiles (`syndic` / `owner` / `tenant`)
+   with the current permissions of each stated.
+2. **Given** the documentation, **When** a reader checks how profiles are
+   assigned, **Then** the docs state that self-service registration yields
+   `owner`/`tenant` and that `syndic` is granted out of band.
+3. **Given** the documentation, **When** a reader looks for enforcement, **Then**
+   the docs state that authorization is decided server-side per request and
+   flag any role-based permission not yet enforced (per FR-011).
+
+---
+
 ### Edge Cases
 
 - Session cookie missing or unreadable on a POST to a protected form — what the
@@ -119,6 +153,12 @@ code or README.
   clear message.
 - Running with `COOKIE_SECURE=false` locally vs `true` in production — documented
   difference in exposure.
+- Self-service registration attempting to reach `syndic` — must not be possible;
+  documented as out-of-band only.
+- Unauthenticated access to a page that requires a signed-in session — user is
+  sent to login, and the behavior is documented.
+- Role-based permissions for features not yet permissioned — documented as
+  gaps (FR-011/FR-014), never presented as enforced behavior.
 
 ## Requirements *(mandatory)*
 
@@ -158,6 +198,18 @@ code or README.
 - **FR-011**: The documentation deliverable MUST NOT change application
   behavior — it documents the as-built auth module only. Any gap found while
   writing it is reported as a follow-up, not fixed in this effort.
+- **FR-012**: Documentation MUST describe the RBAC model: exactly three
+  profiles (`syndic` / `owner` / `tenant`), the current permissions of each,
+  and that access decisions are made server-side per request — never UI-only.
+- **FR-013**: Documentation MUST explain profile assignment: self-service
+  registration creates `owner`/`tenant` accounts only, and `syndic` is granted
+  out of band.
+- **FR-014**: Documentation MUST mark each documented permission as enforced
+  today or as a stated gap; unenforced permissions MUST be flagged, never
+  presented as working behavior (see FR-011).
+- **FR-015**: The documented access model MUST align with the project
+  constitution's access model (Principle VI: three profiles; `syndic` granted
+  out of band; server-side enforcement) with no contradictions.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -170,9 +222,11 @@ code or README.
   validated server-side, proving the request originated from a page the session
   actually rendered. Relationship: bound to the session, never stored in the
   cookie.
-- **User & Role**: The account bound to a session after login, with an
-  authorization role (syndic / owner / tenant) controlling what the session may
-  do.
+- **User & Role**: The account bound to a session after login, carrying exactly
+  one of three authorization profiles — `syndic` (condominium administrator),
+  `owner` (unit owner) or `tenant` (renter). The role determines what the
+  session may do; `owner`/`tenant` are obtainable via self-service
+  registration, while `syndic` is granted out of band.
 
 ## Success Criteria *(mandatory)*
 
@@ -180,19 +234,30 @@ code or README.
 
 - **SC-001**: A developer new to the project can explain the complete auth
   flow (session lifecycle, cookie contents and attributes, CSRF validation)
-  using only the documentation, in under 30 minutes, with no gaps that force
-  reading source code.
+  and the RBAC model (the three profiles and their current permissions) using
+  only the documentation, in under 30 minutes, with no gaps that force reading
+  source code.
 - **SC-002**: 100% of documented claims are verified accurate against the
   implementation by a code review pass (zero inaccuracies found).
 - **SC-003**: A security-review checklist derived from the documentation has
   zero unanswered items: cookie attributes, token hashing, login rotation,
-  CSRF on every state-changing form, and expiry are all documented and correct.
+  CSRF on every state-changing form, expiry, and RBAC authorization are all
+  documented and correct.
 - **SC-004**: The documentation is reachable from the project README in one
   link and a reader can find any of the required topics (session, cookie, CSRF,
-  roles, configuration) within three navigations.
+  RBAC roles, configuration) within three navigations.
 - **SC-005**: The documentation effort introduces zero changes to application
   behavior (no code, migration, or configuration changes outside documentation
   files).
+- **SC-006**: A reader can determine from the docs, for each of the three
+  profiles, which permissions are granted today and how the profile is
+  obtained — with zero ambiguity.
+- **SC-007**: The documentation identifies every role-based permission that is
+  not yet enforced as a gap; a review pass finds no undocumented enforcement
+  gaps.
+- **SC-008**: The documented access model matches the project constitution
+  (exactly three profiles, `syndic` granted out of band, server-side
+  enforcement) with no contradictions.
 
 ## Assumptions
 
@@ -211,3 +276,7 @@ code or README.
   with a pepper, roles syndic/owner/tenant) is authoritative; the README and
   `REASONIX.md` are used as cross-reference, and discrepancies are resolved in
   favor of the code and flagged.
+- **RBAC documentation scope**: The docs describe the three-profile RBAC model
+  and its current enforcement as built. A permission matrix is included only
+  for permissions actually implemented; unenforced permissions are documented
+  as gaps (FR-011/FR-014), not as working behavior.

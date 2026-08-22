@@ -1,0 +1,4 @@
+# Project overlay for the Reasonix agent config (./reasonix.toml > ~/.reasonix/config.toml > defaults).
+# Expose the spec-kit skills installed by `specify init --integration copilot` to Reasonix.
+[skills]
+paths = [".github/skills"]
